@@ -142,15 +142,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="scraping-unstructured-data.html#scraping-unstructured-data" id="toc-scraping-unstructured-data">Scraping unstructured data<span></span></a>
 <ul>
 <li><a href="scraping-unstructured-data.html#finding-your-data" id="toc-finding-your-data"><span class="toc-section-number">0.1</span> Finding your data<span></span></a></li>
-<li><a href="scraping-unstructured-data.html#section" id="toc-section"><span class="toc-section-number">0.2</span> </a></li>
-<li><a href="scraping-unstructured-data.html#formatting-unstructured-data" id="toc-formatting-unstructured-data"><span class="toc-section-number">0.3</span> Formatting unstructured data<span></span></a>
+<li><a href="scraping-unstructured-data.html#formatting-unstructured-data" id="toc-formatting-unstructured-data"><span class="toc-section-number">0.2</span> Formatting unstructured data<span></span></a>
 <ul>
-<li><a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" id="toc-what-format-do-we-need-the-data-in"><span class="toc-section-number">0.3.1</span> What format do we need the data in?<span></span></a></li>
-<li><a href="scraping-unstructured-data.html#create-the-url" id="toc-create-the-url"><span class="toc-section-number">0.3.2</span> Create the URL<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" id="toc-what-format-do-we-need-the-data-in"><span class="toc-section-number">0.2.1</span> What format do we need the data in?<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#create-the-url" id="toc-create-the-url"><span class="toc-section-number">0.2.2</span> Create the URL<span></span></a></li>
 </ul></li>
 </ul></li>
 <li><a href="scraping-structured-data.html#scraping-structured-data" id="toc-scraping-structured-data"><span class="toc-section-number">1</span> Scraping structured data<span></span></a></li>
-<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">2</span> Cleaning with regex<span></span></a></li>
+<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex">Cleaning with regex<span></span></a></li>
 <li class="divider"></li>
 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
   <img alt="CC BY-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" style="float: right; padding-right: 10px;" />
@@ -177,9 +176,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1>Scraping unstructured data<a href="scraping-unstructured-data.html#scraping-unstructured-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="finding-your-data" class="section level2 hasAnchor" number="0.1">
 <h2><span class="header-section-number">0.1</span> Finding your data<a href="scraping-unstructured-data.html#finding-your-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-</div>
-<div id="section" class="section level2" number="0.2">
-<h2><span class="header-section-number">0.2</span> </h2>
 <p>We’ll use the following libraries:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="scraping-unstructured-data.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
 <span id="cb1-2"><a href="scraping-unstructured-data.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xml2)</span>
@@ -251,17 +247,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 33 Fernanda S. Valdovinos</code></pre>
 <p>So, we have the data, but often you need to clean up text data to make it a little more usable. Let’s look at the Transparent California wepage to understand how we want to feed these names into it.</p>
 </div>
-<div id="formatting-unstructured-data" class="section level2 hasAnchor" number="0.3">
-<h2><span class="header-section-number">0.3</span> Formatting unstructured data<a href="scraping-unstructured-data.html#formatting-unstructured-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="what-format-do-we-need-the-data-in" class="section level3 hasAnchor" number="0.3.1">
-<h3><span class="header-section-number">0.3.1</span> What format do we need the data in?<a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="formatting-unstructured-data" class="section level2 hasAnchor" number="0.2">
+<h2><span class="header-section-number">0.2</span> Formatting unstructured data<a href="scraping-unstructured-data.html#formatting-unstructured-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="what-format-do-we-need-the-data-in" class="section level3 hasAnchor" number="0.2.1">
+<h3><span class="header-section-number">0.2.1</span> What format do we need the data in?<a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>If you start of Transparent California, you’ll see a plain URL. One way of webscraping across multiple sites is to modify the URL for each page you want to scrape. If we dig into how URLs for pay in the UC system is stored, we find that it looks something like this:
 <a href="https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021" class="uri">https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021</a></p>
 <p>Let’s look at the pattenr that we want to manipulate:
 <a href="https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021" class="uri">https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021</a></p>
 </div>
-<div id="create-the-url" class="section level3 hasAnchor" number="0.3.2">
-<h3><span class="header-section-number">0.3.2</span> Create the URL<a href="scraping-unstructured-data.html#create-the-url" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="create-the-url" class="section level3 hasAnchor" number="0.2.2">
+<h3><span class="header-section-number">0.2.2</span> Create the URL<a href="scraping-unstructured-data.html#create-the-url" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Let’s use some string manipulation tools to extract the first and last names, and paste together those names in within the URL pattern</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="scraping-unstructured-data.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
 <pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.2</code></pre>
@@ -301,7 +297,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/d-rug/scrape-public-salary-data/edit/master/01_scraping-unstructured-data.Rmd",
+"link": "https://github.com/d-rug/scrape-public-salary-data/edit/master/01_scraping-data.Rmd",
 "text": "Edit"
 },
 "history": {
@@ -309,7 +305,7 @@ gitbook.start({
 "text": null
 },
 "view": {
-"link": "https://github.com/d-rug/scrape-public-salary-data/blob/master/01_scraping-unstructured-data.Rmd",
+"link": "https://github.com/d-rug/scrape-public-salary-data/blob/master/01_scraping-data.Rmd",
 "text": null
 },
 "download": null,

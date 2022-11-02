@@ -2,8 +2,6 @@
 
 ## Finding your data
 
-##
-
 We'll use the following libraries:
 
 ```{r}
@@ -109,6 +107,6 @@ salary.list <- lapply(faculty$url, scrape_fx)
 salary.df <- do.call("rbind", salary.list)
 ```
 
-# Cleaning with regex
+# Cleaning with regex {-}
 
 
