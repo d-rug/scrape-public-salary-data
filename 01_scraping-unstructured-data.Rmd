@@ -1,0 +1,114 @@
+# Scraping unstructured data {-}
+
+## Finding your data
+
+##
+
+We'll use the following libraries:
+
+```{r}
+library(rvest)
+library(xml2)
+library(dplyr)
+```
+
+
+```{r}
+url <- "https://desp.ucdavis.edu/faculty"
+page <- read_html(url)
+```
+
+What do we want out of this mess? We want to find the 'path' that defines the location that this is written on the path. HTML, xpath
+
+I use two main cheats. 
+1. For very specific paths, I will open up Developer Tools on a Browser, Ctrl+F what I am looking for in the webpage, right click on it, and copy the xpath. 
+
+[PHOTO]
+
+The following paths are here, each on unique their name: 
+* Gwen Arnold: //*[@id="block-system-main"]/div/div/div/div[1]/div[2]/h2/a
+* Jesus Barajas: //*[@id="block-system-main"]/div/div/div/div[2]/div[2]/h2/a
+* Marissa Baskett: //*[@id="block-system-main"]/div/div/div/div[3]/div[2]/h2/a
+
+BUT, then do help us see the thing in common: All of these names are in the //*[@id="block-system-main"] path, which gives us a sense of what the more generic path might be. We can confirm with the second tools..
+
+2. The [Inspector Gadget ChromE extension](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb?hl=en) lets you select blocks of webpage's and identify their Xpaths. When you use this selector, this allows you to see the more generic path to grab all of the names: //*[(@id = "block-system-main")]//a  
+
+[PHOTO]
+
+So, we can use this path to pull out the names -- turning structured data into data. We can pull out the names the `xml_final_all()` function, and then piping that into the `html_text()` function, which read the text inside the XML nodeset.  
+
+```{r}
+faculty <- xml_find_all(page, '//*[(@id = "block-system-main")]//a') %>% 
+  html_text()
+```
+
+Now we have faculty names, but there is some blank text in there, so let's clean this uo
+
+```{r}
+faculty <- faculty %>% 
+  data.frame("name" = .) %>% 
+  filter(name != "")
+faculty
+```
+
+So, we have the data, but often you need to clean up text data to make it a little more usable. Let's look at the Transparent California wepage to understand how we want to feed these names into it.
+
+## Formatting unstructured data 
+
+### What format do we need the data in? 
+
+If you start of Transparent California, you'll see a plain URL. One way of webscraping across multiple sites is to modify the URL for each page you want to scrape. If we dig into how URLs for pay in the UC system is stored, we find that it looks something like this: 
+https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=Mark+Lubell&y=2021
+
+Let's look at the pattenr that we want to manipulate:
+https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=FIRSTNAME+LASTNAME&y=2021 
+
+### Create the URL  
+Let's use some string manipulation tools to extract the first and last names, and paste together those names in within the URL pattern
+```{r}
+library(stringr)
+faculty <- faculty %>% 
+  # takes first and last word
+  mutate(name_first = word(name, 1), 
+         name_last = word(name, -1)) %>% 
+  mutate(url_name = paste(name_first, name_last, sep = "+"),
+         url = paste0("https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=", url_name, "&y=2021"))
+```
+
+# Scraping structured data  
+
+So let's figure figure out the xpath to scrape one person's salary data, then we can iterate across multiple names. 
+
+Let's follow the same steps we used to scrape a faculty webpage. I know that there is a table in there, so I can suse Inspector gadget to help me identify its path. Inspector gadget gave me //*[(@id = "main-listing")], which reports out the table as a list. Now instead of just reading the text, because this is specified as a table on the webpage itself, we can use `rvest`'s `html_table()` function to read the table and wrap it in `data.frame()` to make it readable.
+
+
+```{r}
+url <- "https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=Mark+Lubell&y=2021"
+page <- read_html(url) %>% 
+  xml_find_all('//*[(@id = "main-listing")]') %>% 
+  html_table() %>% 
+  data.frame()
+```
+
+
+```{r}
+scrape_fx <- function(URL){
+  url <- URL
+  df <- read_html(url) %>% 
+    xml_find_all('//*[(@id = "main-listing")]') %>% 
+    html_table() %>% 
+    data.frame()
+  return(df)
+}
+```
+
+```{r}
+
+salary.list <- lapply(faculty$url, scrape_fx)
+salary.df <- do.call("rbind", salary.list)
+```
+
+# Cleaning with regex
+
+

@@ -1,10 +1,10 @@
 ---
-title: YOUR WORKSHOP TITLE
-author: [YOUR NAME]
+title: Scrape public [salary] data
+author: Liza Wood
 date: "`r Sys.Date()`"
 
-github-repo: d-rug/YOUR_REPO
-url: "https://d-rug.github.io/YOUR_REPO/"
+github-repo: d-rug/scrape-public-salary-data
+url: "https://github.com/d-rug/scrape-public-salary-data"
 
 site: "bookdown::bookdown_site"
 knit: "bookdown::render_book"
@@ -16,17 +16,19 @@ output:
           <li><a href="https://d-rug.github.io/">
             <img src="https://github.com/d-rug/d-rug.github.io/raw/main/DRUG_final_cobalt.png" style="height: 100%; width: 100%; object-fit: contain" />
           </a></li>
-          <li><a href="./" style="font-size: 18px">YOUR WORKSHOP TITLE</a></li>
+          <li><a href="./" style="font-size: 18px">Scrape public [salary] data</a></li>
         after: |
           <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
             <img alt="CC BY-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" style="float: right; padding-right: 10px;" />
           </a>
         collapse: section
       sharing: no
-      view: https://github.com/d-rug/YOUR_REPO/blob/master/%s
-      edit: https://github.com/d-rug/YOUR_REPO/edit/master/%s
+      view: https://github.com/d-rug/scrape-public-salary-data/blob/master/%s
+      edit: https://github.com/d-rug/scrape-public-salary-data/edit/master/%s
 ---
 
 # Overview {-}
 
-YOUR DESCRIPTION, LEARNING GOALS, PREREQUISITES, ETC
+Data is all over the internet. Some of it is already structured -- tables and databases that are already stored online -- and much of it is unstructured -- information stored on websites, all organized under different formats. This lesson is going to provide an example of web-scraping for each.  
+
+The project today is learn how to scrape data from public salary database, https://transparentcalifornia.com/. I'm specifically interested in looking for faculty salaries of the department I work in. So, we will be scraping unstructured data -- names from a departmental webpage -- using regular expressions to clean it up, and then using that to iteratively scrape a structured database of public salaries.  

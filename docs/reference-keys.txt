@@ -1,0 +1,7 @@
+finding-your-data
+section
+formatting-unstructured-data
+what-format-do-we-need-the-data-in
+create-the-url
+scraping-structured-data
+cleaning-with-regex
