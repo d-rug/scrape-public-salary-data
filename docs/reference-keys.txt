@@ -1,5 +1,8 @@
-finding-your-data
+scraping-unstructured-data
+reading-in-a-webpage
+identifying-xpaths
 formatting-unstructured-data
 what-format-do-we-need-the-data-in
 create-the-url
 scraping-structured-data
+cleaning-with-regex

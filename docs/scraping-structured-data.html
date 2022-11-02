@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>1 Scraping structured data | Scrape public [salary] data</title>
-  <meta name="description" content="1 Scraping structured data | Scrape public [salary] data" />
+  <title>2 Scraping structured data | Scrape public [salary] data</title>
+  <meta name="description" content="2 Scraping structured data | Scrape public [salary] data" />
   <meta name="generator" content="bookdown 0.25 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="1 Scraping structured data | Scrape public [salary] data" />
+  <meta property="og:title" content="2 Scraping structured data | Scrape public [salary] data" />
   <meta property="og:type" content="book" />
   
   
   <meta name="github-repo" content="d-rug/scrape-public-salary-data" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="1 Scraping structured data | Scrape public [salary] data" />
+  <meta name="twitter:title" content="2 Scraping structured data | Scrape public [salary] data" />
   
   
   
@@ -139,17 +139,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <li class="divider"></li>
 <li><a href="index.html#overview" id="toc-overview">Overview<span></span></a></li>
-<li><a href="scraping-unstructured-data.html#scraping-unstructured-data" id="toc-scraping-unstructured-data">Scraping unstructured data<span></span></a>
+<li><a href="scraping-unstructured-data.html#scraping-unstructured-data" id="toc-scraping-unstructured-data"><span class="toc-section-number">1</span> Scraping unstructured data<span></span></a>
 <ul>
-<li><a href="scraping-unstructured-data.html#finding-your-data" id="toc-finding-your-data"><span class="toc-section-number">0.1</span> Finding your data<span></span></a></li>
-<li><a href="scraping-unstructured-data.html#formatting-unstructured-data" id="toc-formatting-unstructured-data"><span class="toc-section-number">0.2</span> Formatting unstructured data<span></span></a>
+<li><a href="scraping-unstructured-data.html#reading-in-a-webpage" id="toc-reading-in-a-webpage"><span class="toc-section-number">1.1</span> Reading in a webpage<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#identifying-xpaths" id="toc-identifying-xpaths"><span class="toc-section-number">1.2</span> Identifying xpaths<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#formatting-unstructured-data" id="toc-formatting-unstructured-data"><span class="toc-section-number">1.3</span> Formatting unstructured data<span></span></a>
 <ul>
-<li><a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" id="toc-what-format-do-we-need-the-data-in"><span class="toc-section-number">0.2.1</span> What format do we need the data in?<span></span></a></li>
-<li><a href="scraping-unstructured-data.html#create-the-url" id="toc-create-the-url"><span class="toc-section-number">0.2.2</span> Create the URL<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#what-format-do-we-need-the-data-in" id="toc-what-format-do-we-need-the-data-in"><span class="toc-section-number">1.3.1</span> What format do we need the data in?<span></span></a></li>
+<li><a href="scraping-unstructured-data.html#create-the-url" id="toc-create-the-url"><span class="toc-section-number">1.3.2</span> Create the URL<span></span></a></li>
 </ul></li>
 </ul></li>
-<li><a href="scraping-structured-data.html#scraping-structured-data" id="toc-scraping-structured-data"><span class="toc-section-number">1</span> Scraping structured data<span></span></a></li>
-<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex">Cleaning with regex<span></span></a></li>
+<li><a href="scraping-structured-data.html#scraping-structured-data" id="toc-scraping-structured-data"><span class="toc-section-number">2</span> Scraping structured data<span></span></a></li>
+<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">3</span> Cleaning with regex<span></span></a></li>
 <li class="divider"></li>
 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
   <img alt="CC BY-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" style="float: right; padding-right: 10px;" />
@@ -172,25 +173,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="scraping-structured-data" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">1</span> Scraping structured data<a href="scraping-structured-data.html#scraping-structured-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="scraping-structured-data" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">2</span> Scraping structured data<a href="scraping-structured-data.html#scraping-structured-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>So let’s figure figure out the xpath to scrape one person’s salary data, then we can iterate across multiple names.</p>
 <p>Let’s follow the same steps we used to scrape a faculty webpage. I know that there is a table in there, so I can suse Inspector gadget to help me identify its path. Inspector gadget gave me //*<span class="citation">[(@id = "main-listing")]</span>, which reports out the table as a list. Now instead of just reading the text, because this is specified as a table on the webpage itself, we can use <code>rvest</code>’s <code>html_table()</code> function to read the table and wrap it in <code>data.frame()</code> to make it readable.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="scraping-structured-data.html#cb12-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021&quot;</span></span>
-<span id="cb12-2"><a href="scraping-structured-data.html#cb12-2" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="scraping-structured-data.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xml_find_all</span>(<span class="st">&#39;//*[(@id = &quot;main-listing&quot;)]&#39;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-4"><a href="scraping-structured-data.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb12-5"><a href="scraping-structured-data.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>()</span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="scraping-structured-data.html#cb13-1" aria-hidden="true" tabindex="-1"></a>scrape_fx <span class="ot">&lt;-</span> <span class="cf">function</span>(URL){</span>
-<span id="cb13-2"><a href="scraping-structured-data.html#cb13-2" aria-hidden="true" tabindex="-1"></a>  url <span class="ot">&lt;-</span> URL</span>
-<span id="cb13-3"><a href="scraping-structured-data.html#cb13-3" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-4"><a href="scraping-structured-data.html#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xml_find_all</span>(<span class="st">&#39;//*[(@id = &quot;main-listing&quot;)]&#39;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-5"><a href="scraping-structured-data.html#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_table</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-6"><a href="scraping-structured-data.html#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>()</span>
-<span id="cb13-7"><a href="scraping-structured-data.html#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb13-8"><a href="scraping-structured-data.html#cb13-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="scraping-structured-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a>salary.list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(faculty<span class="sc">$</span>url, scrape_fx)</span>
-<span id="cb14-2"><a href="scraping-structured-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>salary.df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">&quot;rbind&quot;</span>, salary.list)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="scraping-structured-data.html#cb16-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021&quot;</span></span>
+<span id="cb16-2"><a href="scraping-structured-data.html#cb16-2" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="scraping-structured-data.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xml_find_all</span>(<span class="st">&#39;//*[(@id = &quot;main-listing&quot;)]&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="scraping-structured-data.html#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-5"><a href="scraping-structured-data.html#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="scraping-structured-data.html#cb17-1" aria-hidden="true" tabindex="-1"></a>scrape_fx <span class="ot">&lt;-</span> <span class="cf">function</span>(URL){</span>
+<span id="cb17-2"><a href="scraping-structured-data.html#cb17-2" aria-hidden="true" tabindex="-1"></a>  url <span class="ot">&lt;-</span> URL</span>
+<span id="cb17-3"><a href="scraping-structured-data.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-4"><a href="scraping-structured-data.html#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xml_find_all</span>(<span class="st">&#39;//*[(@id = &quot;main-listing&quot;)]&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="scraping-structured-data.html#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_table</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb17-6"><a href="scraping-structured-data.html#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>()</span>
+<span id="cb17-7"><a href="scraping-structured-data.html#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb17-8"><a href="scraping-structured-data.html#cb17-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="scraping-structured-data.html#cb18-1" aria-hidden="true" tabindex="-1"></a>salary.list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(faculty<span class="sc">$</span>url, scrape_fx)</span>
+<span id="cb18-2"><a href="scraping-structured-data.html#cb18-2" aria-hidden="true" tabindex="-1"></a>salary.df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">&quot;rbind&quot;</span>, salary.list)</span></code></pre></div>
 </div>
             </section>
 

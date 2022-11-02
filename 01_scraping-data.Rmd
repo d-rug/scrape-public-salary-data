@@ -1,8 +1,8 @@
-# Scraping unstructured data {-}
+# Scraping unstructured data 
 
-## Finding your data
+To scrape salaries from the public salary database, we first need to gather the names of the employees we want to collect salary data on. So let's go to a UC Davis website and find a departmental page with faculty names. I'll use the [Environmental Science and Policy Department](https://desp.ucdavis.edu/faculty) as an example.  
 
-We'll use the following libraries:
+We should also load in the following libraries that we're going to use:
 
 ```{r}
 library(rvest)
@@ -10,38 +10,58 @@ library(xml2)
 library(dplyr)
 ```
 
+## Reading in a webpage
+
+Let's assign the URL to an object, and use the `read_html()` function to read the page.  
 
 ```{r}
 url <- "https://desp.ucdavis.edu/faculty"
 page <- read_html(url)
 ```
 
-What do we want out of this mess? We want to find the 'path' that defines the location that this is written on the path. HTML, xpath
+But the page is currently stored as HTML.  
 
-I use two main cheats. 
-1. For very specific paths, I will open up Developer Tools on a Browser, Ctrl+F what I am looking for in the webpage, right click on it, and copy the xpath. 
+```{r}
+page
+```
 
-[PHOTO]
+So what do we want out of this mess? We want to find the 'path' that defines the location of the things we're interested in extracting. But to know how to find that path we need to know a little bit about what's in a web page. This is not my expert area, so I'll point to a [UC Davis DataLab resource on web-scraping](https://ucdavisdatalab.github.io/adventures_in_data_science/getting-data-from-the-web.html#web-scraping) that describes elements of webpages and more about HTML and XML. 
 
-The following paths are here, each on unique their name: 
+For our purposes, it is important to know that **HTML and the related XML use 'tags' to mark different parts of the webpage's data**. What we need to identify are the appropriate tags or paths to extract what we want. We can do this by identifying the 'xpaths' -- the path of tags that highlight particular parts of a page. 
+
+## Identifying xpaths
+
+I don't use xpaths everyday, and so I tend to use two methods to help me identify the page's structure.  
+
+1. For very specific paths, I will open up Developer Tools on a Browser using `Cmd + Opt + I`, then inspecting the elements of the page, `Ctrl + F` to find the text of what I am looking for in the webpage. Once you find it you can right click > Copy > Xpath. 
+
+![picture of copying xpath in dev tools](img/esp_xpath_copy.png))
+
+When I use this process for the first three names I find the following paths, each on unique their name:  
 * Gwen Arnold: //*[@id="block-system-main"]/div/div/div/div[1]/div[2]/h2/a
 * Jesus Barajas: //*[@id="block-system-main"]/div/div/div/div[2]/div[2]/h2/a
-* Marissa Baskett: //*[@id="block-system-main"]/div/div/div/div[3]/div[2]/h2/a
+* Marissa Baskett: //*[@id="block-system-main"]/div/div/div/div[3]/div[2]/h2/a  
 
-BUT, then do help us see the thing in common: All of these names are in the //*[@id="block-system-main"] path, which gives us a sense of what the more generic path might be. We can confirm with the second tools..
+These are all too specific for trying to take all of the names with one path, but they do help us see the thing in common: All of these names are in the //*[@id="block-system-main"] path, which gives us a sense of what the more generic path might be. We can confirm with the second tool...  
 
-2. The [Inspector Gadget ChromE extension](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb?hl=en) lets you select blocks of webpage's and identify their Xpaths. When you use this selector, this allows you to see the more generic path to grab all of the names: //*[(@id = "block-system-main")]//a  
+2. The [InspectorGadget Chrome extension](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb?hl=en) lets you click on blocks of a webpage and identify their Xpaths. When you use this gadget, you can see the more generic path to grab all of the names: //*[(@id = "block-system-main")]//a  
 
-[PHOTO]
+![picture of InspectorGadget tool](img/esp_xpath_IG.png)
 
-So, we can use this path to pull out the names -- turning structured data into data. We can pull out the names the `xml_final_all()` function, and then piping that into the `html_text()` function, which read the text inside the XML nodeset.  
+So, we can use this path to pull out the names -- turning structured data into data. We pull out the names with the `xml_final_all()` function, and then pipe that into the `html_text()` function, which read the text inside the XML nodeset.  
 
 ```{r}
 faculty <- xml_find_all(page, '//*[(@id = "block-system-main")]//a') %>% 
   html_text()
 ```
 
-Now we have faculty names, but there is some blank text in there, so let's clean this uo
+Now we have faculty names, but it is a bit messy, so we can start to clean it up next:
+
+```{r}
+faculty
+```
+## Formatting unstructured data 
+
 
 ```{r}
 faculty <- faculty %>% 
@@ -51,8 +71,6 @@ faculty
 ```
 
 So, we have the data, but often you need to clean up text data to make it a little more usable. Let's look at the Transparent California wepage to understand how we want to feed these names into it.
-
-## Formatting unstructured data 
 
 ### What format do we need the data in? 
 
@@ -107,6 +125,6 @@ salary.list <- lapply(faculty$url, scrape_fx)
 salary.df <- do.call("rbind", salary.list)
 ```
 
-# Cleaning with regex {-}
+# Cleaning with regex  
 
 
