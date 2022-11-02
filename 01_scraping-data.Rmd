@@ -4,7 +4,7 @@ To scrape salaries from the public salary database, we first need to gather the 
 
 We should also load in the following libraries that we're going to use:
 
-```{r}
+```{r, warning = F, message = F}
 library(rvest)
 library(xml2)
 library(dplyr)
@@ -127,7 +127,7 @@ scrape_fx <- function(URL){
   df <- read_html(url) %>% 
     xml_find_all('//*[(@id = "main-listing")]') %>% 
     html_table() %>% 
-    data.frame()
+    data.frame() 
   return(df)
 }
 ```
@@ -141,9 +141,44 @@ salary.df <- do.call("rbind", salary.list)
 
 Now we can take a look:  
 ```{r}
-DT::datatable(salary.df)
+DT::datatable(salary.df, rownames = F)
 ```
 
 # Cleaning with regex  
 
+Whenever we're working with text, from the internet or otherwise, there is going to be some string manipulation that can help us clean and work with the data. To work with text data it is important to have a sense of regular expressions, or regex. My favorite quick resource is the second page of the [stringr cheat sheet](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf).  
 
+Regex is a pattern language that is used for text that can help
+
+## Filter on multiple patterns
+
+```{r}
+salary.df <- salary.df %>% 
+    select(-Other.pay) %>% 
+    filter(str_detect(Job.title, "Prof|Specialist")) %>% 
+    filter(!(str_detect(Job.title, "Adj"))) 
+```
+
+```{r}
+DT::datatable(salary.df, rownames = F)
+```
+
+## Remove characters  
+
+For working with the data, however, we want to remove symbols like dollar signs and commas. We can use regular expressions to remove the special characters, but it is important to note that some symbols we use for punctuation have special meanins in regex. For example:  
+* . = every character
+* $ = end of a string
+* ^ = end of a string
+* + = one or more characters
+
+When you want to use a symbol in a pattern and use the _actual symbol_, rather than its special meaning, you need to 'escape' the character to signify to the regular expression that you really mean a period (.) rather than every character. So here we can remove dollar signs and commas, but make sure we escape the sign the two backlashes in R.  
+
+```{r}
+salary.df <- salary.df %>% 
+  mutate(Regular.pay = as.numeric(str_remove_all(Regular.pay,  "\\$|,")),
+         Total.pay = as.numeric(str_remove_all(Total.pay, "\\$|,"))) 
+```
+
+```{r}
+DT::datatable(salary.df, rownames = F)
+```

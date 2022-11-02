@@ -161,7 +161,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="scraping-structured-data-iteravely.html#scrape-one-example" id="toc-scrape-one-example"><span class="toc-section-number">3.1</span> Scrape one example<span></span></a></li>
 <li><a href="scraping-structured-data-iteravely.html#iterating-scrape-across-urls" id="toc-iterating-scrape-across-urls"><span class="toc-section-number">3.2</span> Iterating scrape across URLs<span></span></a></li>
 </ul></li>
-<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">4</span> Cleaning with regex<span></span></a></li>
+<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">4</span> Cleaning with regex<span></span></a>
+<ul>
+<li><a href="cleaning-with-regex.html#filter-on-multiple-patterns" id="toc-filter-on-multiple-patterns"><span class="toc-section-number">4.1</span> Filter on multiple patterns<span></span></a></li>
+<li><a href="cleaning-with-regex.html#remove-characters" id="toc-remove-characters"><span class="toc-section-number">4.2</span> Remove characters<span></span></a></li>
+</ul></li>
 <li class="divider"></li>
 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
   <img alt="CC BY-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" style="float: right; padding-right: 10px;" />
@@ -187,9 +191,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="formatting-unstructured-data" class="section level1 hasAnchor" number="2">
 <h1><span class="header-section-number">2</span> Formatting unstructured data<a href="formatting-unstructured-data.html#formatting-unstructured-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>We have our faculty in a messy vector, so let’s convert this some by turning it into a data frame and filtering out blanks.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="formatting-unstructured-data.html#cb11-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="formatting-unstructured-data.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="st">&quot;name&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a href="formatting-unstructured-data.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="formatting-unstructured-data.html#cb8-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="formatting-unstructured-data.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="st">&quot;name&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="formatting-unstructured-data.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <p>So, we have the data, but often you need to clean up text data to make it a little more usable. Let’s look at the Transparent California webpage to understand how we want to feed these names into it.</p>
 <div id="what-format-do-we-need-the-data-in" class="section level2 hasAnchor" number="2.1">
 <h2><span class="header-section-number">2.1</span> What format do we need the data in?<a href="formatting-unstructured-data.html#what-format-do-we-need-the-data-in" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -198,14 +202,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Let’s look at the pattenr that we want to manipulate:
 <a href="https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021" class="uri">https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021</a></p>
 <p>Let’s use some string manipulation tools to extract the first and last names, and paste together those names in within the URL pattern</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="formatting-unstructured-data.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="formatting-unstructured-data.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
 <pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.2</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="formatting-unstructured-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
-<span id="cb14-2"><a href="formatting-unstructured-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes first and last word</span></span>
-<span id="cb14-3"><a href="formatting-unstructured-data.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name_first =</span> <span class="fu">word</span>(name, <span class="dv">1</span>), </span>
-<span id="cb14-4"><a href="formatting-unstructured-data.html#cb14-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">name_last =</span> <span class="fu">word</span>(name, <span class="sc">-</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-5"><a href="formatting-unstructured-data.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url_name =</span> <span class="fu">paste</span>(name_first, name_last, <span class="at">sep =</span> <span class="st">&quot;+&quot;</span>),</span>
-<span id="cb14-6"><a href="formatting-unstructured-data.html#cb14-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">url =</span> <span class="fu">paste0</span>(<span class="st">&quot;https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=&quot;</span>, url_name, <span class="st">&quot;&amp;y=2021&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="formatting-unstructured-data.html#cb11-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="formatting-unstructured-data.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes first and last word</span></span>
+<span id="cb11-3"><a href="formatting-unstructured-data.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name_first =</span> <span class="fu">word</span>(name, <span class="dv">1</span>), </span>
+<span id="cb11-4"><a href="formatting-unstructured-data.html#cb11-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">name_last =</span> <span class="fu">word</span>(name, <span class="sc">-</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-5"><a href="formatting-unstructured-data.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url_name =</span> <span class="fu">paste</span>(name_first, name_last, <span class="at">sep =</span> <span class="st">&quot;+&quot;</span>),</span>
+<span id="cb11-6"><a href="formatting-unstructured-data.html#cb11-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">url =</span> <span class="fu">paste0</span>(<span class="st">&quot;https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=&quot;</span>, url_name, <span class="st">&quot;&amp;y=2021&quot;</span>))</span></code></pre></div>
 </div>
 </div>
             </section>

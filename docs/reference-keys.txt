@@ -7,3 +7,5 @@ scraping-structured-data-iteravely
 scrape-one-example
 iterating-scrape-across-urls
 cleaning-with-regex
+filter-on-multiple-patterns
+remove-characters

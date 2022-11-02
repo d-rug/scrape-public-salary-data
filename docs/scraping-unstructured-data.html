@@ -161,7 +161,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="scraping-structured-data-iteravely.html#scrape-one-example" id="toc-scrape-one-example"><span class="toc-section-number">3.1</span> Scrape one example<span></span></a></li>
 <li><a href="scraping-structured-data-iteravely.html#iterating-scrape-across-urls" id="toc-iterating-scrape-across-urls"><span class="toc-section-number">3.2</span> Iterating scrape across URLs<span></span></a></li>
 </ul></li>
-<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">4</span> Cleaning with regex<span></span></a></li>
+<li><a href="cleaning-with-regex.html#cleaning-with-regex" id="toc-cleaning-with-regex"><span class="toc-section-number">4</span> Cleaning with regex<span></span></a>
+<ul>
+<li><a href="cleaning-with-regex.html#filter-on-multiple-patterns" id="toc-filter-on-multiple-patterns"><span class="toc-section-number">4.1</span> Filter on multiple patterns<span></span></a></li>
+<li><a href="cleaning-with-regex.html#remove-characters" id="toc-remove-characters"><span class="toc-section-number">4.2</span> Remove characters<span></span></a></li>
+</ul></li>
 <li class="divider"></li>
 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
   <img alt="CC BY-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" style="float: right; padding-right: 10px;" />
@@ -191,21 +195,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="scraping-unstructured-data.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
 <span id="cb1-2"><a href="scraping-unstructured-data.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xml2)</span>
 <span id="cb1-3"><a href="scraping-unstructured-data.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
 <div id="reading-in-a-webpage" class="section level2 hasAnchor" number="1.1">
 <h2><span class="header-section-number">1.1</span> Reading in a webpage<a href="scraping-unstructured-data.html#reading-in-a-webpage" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Let’s assign the URL to an object, and use the <code>read_html()</code> function to read the page.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="scraping-unstructured-data.html#cb5-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://desp.ucdavis.edu/faculty&quot;</span></span>
-<span id="cb5-2"><a href="scraping-unstructured-data.html#cb5-2" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="scraping-unstructured-data.html#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://desp.ucdavis.edu/faculty&quot;</span></span>
+<span id="cb2-2"><a href="scraping-unstructured-data.html#cb2-2" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span></code></pre></div>
 <p>But the page is currently stored as HTML.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="scraping-unstructured-data.html#cb6-1" aria-hidden="true" tabindex="-1"></a>page</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="scraping-unstructured-data.html#cb3-1" aria-hidden="true" tabindex="-1"></a>page</span></code></pre></div>
 <pre><code>## {html_document}
 ## &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot; xml:lang=&quot;en&quot;&gt;
 ## [1] &lt;head profile=&quot;http://www.w3.org/1999/xhtml/vocab&quot;&gt;\n&lt;meta content=&quot;text/ ...
@@ -233,10 +229,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p class="caption">picture of InspectorGadget tool</p>
 </div>
 <p>So, we can use this path to pull out the names – turning structured data into data. We pull out the names with the <code>xml_final_all()</code> function, and then pipe that into the <code>html_text()</code> function, which read the text inside the XML nodeset.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="scraping-unstructured-data.html#cb8-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> <span class="fu">xml_find_all</span>(page, <span class="st">&#39;//*[(@id = &quot;block-system-main&quot;)]//a&#39;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="scraping-unstructured-data.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="scraping-unstructured-data.html#cb5-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> <span class="fu">xml_find_all</span>(page, <span class="st">&#39;//*[(@id = &quot;block-system-main&quot;)]//a&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="scraping-unstructured-data.html#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text</span>()</span></code></pre></div>
 <p>Now we have faculty names, but it is a bit messy, so we can start to clean it up next:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="scraping-unstructured-data.html#cb9-1" aria-hidden="true" tabindex="-1"></a>faculty</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="scraping-unstructured-data.html#cb6-1" aria-hidden="true" tabindex="-1"></a>faculty</span></code></pre></div>
 <pre><code>##  [1] &quot;&quot;                       &quot;Gwen Arnold&quot;            &quot;&quot;                      
 ##  [4] &quot;Jesus M. Barajas&quot;       &quot;&quot;                       &quot;Marissa L. Baskett&quot;    
 ##  [7] &quot;&quot;                       &quot;Howard V. Cornell&quot;      &quot;&quot;                      
