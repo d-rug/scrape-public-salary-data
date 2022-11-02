@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Scrape public [salary] data</title>
-  <meta name="description" content="Scrape public [salary] data" />
+  <title>2 Formatting unstructured data | Scrape public [salary] data</title>
+  <meta name="description" content="2 Formatting unstructured data | Scrape public [salary] data" />
   <meta name="generator" content="bookdown 0.25 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Scrape public [salary] data" />
+  <meta property="og:title" content="2 Formatting unstructured data | Scrape public [salary] data" />
   <meta property="og:type" content="book" />
   
   
   <meta name="github-repo" content="d-rug/scrape-public-salary-data" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Scrape public [salary] data" />
+  <meta name="twitter:title" content="2 Formatting unstructured data | Scrape public [salary] data" />
   
   
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="scraping-unstructured-data.html"/>
+<link rel="prev" href="scraping-unstructured-data.html"/>
+<link rel="next" href="scraping-structured-data-iteravely.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -184,24 +184,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Scrape public [salary] data</h1>
-<p class="author"><em>Liza Wood</em></p>
-<p class="date"><em>2022-11-01</em></p>
+<div id="formatting-unstructured-data" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">2</span> Formatting unstructured data<a href="formatting-unstructured-data.html#formatting-unstructured-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>We have our faculty in a messy vector, so let’s convert this some by turning it into a data frame and filtering out blanks.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="formatting-unstructured-data.html#cb11-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="formatting-unstructured-data.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="st">&quot;name&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="formatting-unstructured-data.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<p>So, we have the data, but often you need to clean up text data to make it a little more usable. Let’s look at the Transparent California webpage to understand how we want to feed these names into it.</p>
+<div id="what-format-do-we-need-the-data-in" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> What format do we need the data in?<a href="formatting-unstructured-data.html#what-format-do-we-need-the-data-in" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>If you start of Transparent California, you’ll see a plain URL. One way of webscraping across multiple sites is to modify the URL for each page you want to scrape. If we dig into how URLs for pay in the UC system is stored, we find that it looks something like this:
+<a href="https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021" class="uri">https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=Mark+Lubell&amp;y=2021</a></p>
+<p>Let’s look at the pattenr that we want to manipulate:
+<a href="https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021" class="uri">https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=FIRSTNAME+LASTNAME&amp;y=2021</a></p>
+<p>Let’s use some string manipulation tools to extract the first and last names, and paste together those names in within the URL pattern</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="formatting-unstructured-data.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
+<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.2</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="formatting-unstructured-data.html#cb14-1" aria-hidden="true" tabindex="-1"></a>faculty <span class="ot">&lt;-</span> faculty <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="formatting-unstructured-data.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes first and last word</span></span>
+<span id="cb14-3"><a href="formatting-unstructured-data.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name_first =</span> <span class="fu">word</span>(name, <span class="dv">1</span>), </span>
+<span id="cb14-4"><a href="formatting-unstructured-data.html#cb14-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">name_last =</span> <span class="fu">word</span>(name, <span class="sc">-</span><span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-5"><a href="formatting-unstructured-data.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url_name =</span> <span class="fu">paste</span>(name_first, name_last, <span class="at">sep =</span> <span class="st">&quot;+&quot;</span>),</span>
+<span id="cb14-6"><a href="formatting-unstructured-data.html#cb14-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">url =</span> <span class="fu">paste0</span>(<span class="st">&quot;https://transparentcalifornia.com/salaries/search/?a=university-of-california&amp;q=&quot;</span>, url_name, <span class="st">&quot;&amp;y=2021&quot;</span>))</span></code></pre></div>
 </div>
-<div id="overview" class="section level1 unnumbered hasAnchor">
-<h1>Overview<a href="index.html#overview" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>Data is all over the internet. Some of it is already structured – tables and databases that are already stored online – and much of it is unstructured – information stored on websites, all organized under different formats. This lesson is going to provide an example of web-scraping for each.</p>
-<p>The project today is learn how to scrape data from public salary database, <a href="https://transparentcalifornia.com/" class="uri">https://transparentcalifornia.com/</a>. I’m specifically interested in looking for faculty salaries of the department I work in. So, we will be scraping unstructured data – names from a departmental webpage – using regular expressions to clean it up, and then using that to iteratively scrape a structured database of public salaries.</p>
-
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="scraping-unstructured-data.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="scraping-unstructured-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="scraping-structured-data-iteravely.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -222,7 +235,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/d-rug/scrape-public-salary-data/edit/master/index.Rmd",
+"link": "https://github.com/d-rug/scrape-public-salary-data/edit/master/01_scraping-data.Rmd",
 "text": "Edit"
 },
 "history": {
@@ -230,7 +243,7 @@ gitbook.start({
 "text": null
 },
 "view": {
-"link": "https://github.com/d-rug/scrape-public-salary-data/blob/master/index.Rmd",
+"link": "https://github.com/d-rug/scrape-public-salary-data/blob/master/01_scraping-data.Rmd",
 "text": null
 },
 "download": null,

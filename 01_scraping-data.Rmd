@@ -38,9 +38,9 @@ I don't use xpaths everyday, and so I tend to use two methods to help me identif
 ![picture of copying xpath in dev tools](img/esp_xpath_copy.png))
 
 When I use this process for the first three names I find the following paths, each on unique their name:  
-* Gwen Arnold: //*[@id="block-system-main"]/div/div/div/div[1]/div[2]/h2/a
-* Jesus Barajas: //*[@id="block-system-main"]/div/div/div/div[2]/div[2]/h2/a
-* Marissa Baskett: //*[@id="block-system-main"]/div/div/div/div[3]/div[2]/h2/a  
+* Gwen Arnold: //*[@id="block-system-main"]/div/div/div/div[1]/div[2]/h2/a  
+* Jesus Barajas: //*[@id="block-system-main"]/div/div/div/div[2]/div[2]/h2/a  
+* Marissa Baskett: //*[@id="block-system-main"]/div/div/div/div[3]/div[2]/h2/a    
 
 These are all too specific for trying to take all of the names with one path, but they do help us see the thing in common: All of these names are in the //*[@id="block-system-main"] path, which gives us a sense of what the more generic path might be. We can confirm with the second tool...  
 
@@ -60,19 +60,18 @@ Now we have faculty names, but it is a bit messy, so we can start to clean it up
 ```{r}
 faculty
 ```
-## Formatting unstructured data 
+# Formatting unstructured data 
 
-
+We have our faculty in a messy vector, so let's convert this some by turning it into a data frame and filtering out blanks.
 ```{r}
 faculty <- faculty %>% 
   data.frame("name" = .) %>% 
   filter(name != "")
-faculty
 ```
 
-So, we have the data, but often you need to clean up text data to make it a little more usable. Let's look at the Transparent California wepage to understand how we want to feed these names into it.
+So, we have the data, but often you need to clean up text data to make it a little more usable. Let's look at the Transparent California webpage to understand how we want to feed these names into it.
 
-### What format do we need the data in? 
+## What format do we need the data in? 
 
 If you start of Transparent California, you'll see a plain URL. One way of webscraping across multiple sites is to modify the URL for each page you want to scrape. If we dig into how URLs for pay in the UC system is stored, we find that it looks something like this: 
 https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=Mark+Lubell&y=2021
@@ -80,7 +79,6 @@ https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=
 Let's look at the pattenr that we want to manipulate:
 https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=FIRSTNAME+LASTNAME&y=2021 
 
-### Create the URL  
 Let's use some string manipulation tools to extract the first and last names, and paste together those names in within the URL pattern
 ```{r}
 library(stringr)
@@ -92,21 +90,36 @@ faculty <- faculty %>%
          url = paste0("https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=", url_name, "&y=2021"))
 ```
 
-# Scraping structured data  
+# Scraping structured data iteravely  
 
+## Scrape one example  
 So let's figure figure out the xpath to scrape one person's salary data, then we can iterate across multiple names. 
 
-Let's follow the same steps we used to scrape a faculty webpage. I know that there is a table in there, so I can suse Inspector gadget to help me identify its path. Inspector gadget gave me //*[(@id = "main-listing")], which reports out the table as a list. Now instead of just reading the text, because this is specified as a table on the webpage itself, we can use `rvest`'s `html_table()` function to read the table and wrap it in `data.frame()` to make it readable.
+Let's follow the same steps we used to scrape a faculty webpage. I know that there is a table in there, so I can use InspectorGadget to help me identify its path. 
 
+![picture of InspectorGadget tool](img/tc.png)
+
+Inspector gadget gave me //*[(@id = "main-listing")], which when run in `xml_find_all()` we see the output is a list with table elements.
 
 ```{r}
 url <- "https://transparentcalifornia.com/salaries/search/?a=university-of-california&q=Mark+Lubell&y=2021"
 page <- read_html(url) %>% 
-  xml_find_all('//*[(@id = "main-listing")]') %>% 
-  html_table() %>% 
-  data.frame()
+  xml_find_all('//*[(@id = "main-listing")]')
+page
 ```
 
+Since we have a table, now instead of just reading the text we can use `rvest`'s `html_table()` function to read the table and wrap it in `data.frame()` to make it readable.
+
+```{r}
+table <- page %>% 
+  html_table() %>% 
+  data.frame()
+table
+```
+
+## Iterating scrape across URLs  
+
+Now we the know how to scrape one page, we want to generalize this scraping so that we can input multiple URLs. We've wrapped the earlier code into a function with only one argument -- the URL.
 
 ```{r}
 scrape_fx <- function(URL){
@@ -119,10 +132,16 @@ scrape_fx <- function(URL){
 }
 ```
 
-```{r}
+Now we can apply that function across all of the URLs so that we can compile salary data for all faculty.  
 
+```{r}
 salary.list <- lapply(faculty$url, scrape_fx)
 salary.df <- do.call("rbind", salary.list)
+```
+
+Now we can take a look:  
+```{r}
+DT::datatable(salary.df)
 ```
 
 # Cleaning with regex  
