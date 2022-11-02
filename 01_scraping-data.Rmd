@@ -154,7 +154,7 @@ Regex is a pattern language that is used for text that can help
 
 ```{r}
 salary.df <- salary.df %>% 
-    select(-Other.pay) %>% 
+    select(-c(Overtime.pay, Benefits, Total.pay...benefits)) %>% 
     filter(str_detect(Job.title, "Prof|Specialist")) %>% 
     filter(!(str_detect(Job.title, "Adj"))) 
 ```
